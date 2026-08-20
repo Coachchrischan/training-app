@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+@import './brands/brands.css';
+
+/* Map semantic brand tokens into Tailwind utilities.
+   Components only ever use these; brand packs redefine the underlying vars. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-ink: var(--primary-ink);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+  --color-ok: var(--ok);
+  --font-display: var(--font-display-stack);
+  --font-sans: var(--font-body-stack);
+  --radius-card: var(--radius-card);
+  --radius-tile: var(--radius-tile);
+}
+
+html, body, #root { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body-stack);
+  /* rem, not px, so the browser's own text-size setting still works. */
+  font-size: var(--font-size-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .display {
+  font-family: var(--font-display-stack);
+  font-style: var(--font-display-style, normal);
+  font-weight: var(--font-display-weight, 600);
+  line-height: 1.15;
+}
+
+input, select, textarea, button { font: inherit; color: inherit; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.tile {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-tile);
+}
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  border-radius: 999px; padding: 0.5rem 1.1rem; font-weight: 600; font-size: 0.95rem;
+  background: var(--primary); color: var(--primary-ink); border: 1px solid transparent;
+  cursor: pointer; transition: background 120ms ease;
+  min-height: var(--control-min);
+}
+.btn:hover { background: var(--primary-dark); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn-ghost:hover { background: var(--surface-2); }
+/* Compact variant for dense coach-console rows. Brands that need a hard target floor
+   (BlueZone) set --control-min-sm equal to --control-min so nothing shrinks. */
+.btn-sm { min-height: var(--control-min-sm); padding: 0.25rem 0.8rem; font-size: 0.85rem; }
+
+.field {
+  width: 100%; background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius-tile); padding: 0.5rem 0.75rem; min-height: var(--control-min);
+}
+.field:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+
+/* A visible focus ring everywhere, for keyboard users. */
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 4px; }
+
+.label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-bottom: 0.25rem; }
+
+::selection { background: var(--accent); color: var(--ink); }

@@ -1,0 +1,17 @@
+node_modules/
+dist/
+
+# The SQLite demo database and its WAL sidecars. Rebuilt by the seeder, never synced.
+server/data/
+
+# Build artefacts
+*.tsbuildinfo
+*.log
+
+# Secrets - never commit
+.env
+.env.*
+*.local
+
+.DS_Store
+Thumbs.db

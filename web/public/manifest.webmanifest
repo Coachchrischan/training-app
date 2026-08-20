@@ -1,0 +1,12 @@
+{
+  "name": "Training App",
+  "short_name": "Training",
+  "description": "Your training and health, one place.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4ede0",
+  "theme_color": "#f4ede0",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

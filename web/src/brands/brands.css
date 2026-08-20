@@ -1,0 +1,86 @@
+/* Brand packs. Semantic tokens only; components never reference brand colours directly.
+   Default (:root) = Coach Chris Chan (Linden). Values derived from
+   Coach Chris Chan/Brand Guidelines/Styleguide/tokens.css (June 2026). */
+
+:root, [data-brand='coach-chris-chan'] {
+  --bg: #f4ede0;
+  --surface: #fbf6ec;
+  --surface-2: #e2d6c0;
+  --ink: #2a2018;
+  --muted: #76695a;
+  --line: #dccfb8;
+  --primary: #a8412a;           /* Brick Rust: the only action colour */
+  --primary-dark: #88321e;
+  --primary-ink: #fbf6ec;
+  --accent: #c8a86b;            /* Honey Amber: decorative only, never a CTA */
+  --danger: #a8412a;
+  --ok: #4a6b3a;
+  --font-display-stack: 'Fraunces', Georgia, serif;
+  --font-display-style: italic;
+  --font-display-weight: 500;
+  --font-body-stack: 'Inter', system-ui, sans-serif;
+  --radius-card: 20px;
+  --radius-tile: 12px;
+  --shadow-card: 0 8px 28px rgba(42, 32, 24, 0.10);
+  /* Accessibility floors, per brand. Overridable so BlueZone can meet the older-adult
+     floors (18px body, 48px targets) without any component knowing which brand it is. */
+  --font-size-base: 1rem;
+  --control-min: 44px;
+  --control-min-sm: 34px;
+}
+
+/* Antenna Reef Athletic Club. PLACEHOLDER palette (reef blues + coral) until Chris
+   supplies real brand direction. Swap freely; nothing else depends on these values. */
+[data-brand='antenna-reef'] {
+  --bg: #eef4f4;
+  --surface: #fbfdfd;
+  --surface-2: #dce9e9;
+  --ink: #122b33;
+  --muted: #557079;
+  --line: #c8dadb;
+  --primary: #0e6b74;
+  --primary-dark: #0a525a;
+  --primary-ink: #f4fbfb;
+  --accent: #ff7059;
+  --danger: #c2402f;
+  --ok: #2c7a4b;
+  --font-display-stack: 'Mulish', system-ui, sans-serif;
+  --font-display-style: normal;
+  --font-display-weight: 800;
+  --font-body-stack: 'Mulish', system-ui, sans-serif;
+  --radius-card: 14px;
+  --radius-tile: 10px;
+  --shadow-card: 0 6px 20px rgba(18, 43, 51, 0.10);
+  --font-size-base: 1rem;
+  --control-min-sm: 34px;
+  --control-min: 44px;
+}
+
+/* BlueZone. Core palette from BlueZone Design System (navy/cobalt/teal on warm sand);
+   Articulat CF is licensed, so Hanken Grotesk (display) + DM Sans (body) substitute. */
+[data-brand='bluezone'] {
+  --bg: #f5f0ec;
+  --surface: #ffffff;
+  --surface-2: #efe5dd;
+  --ink: #031448;
+  --muted: #46557f;
+  --line: #d9d0c7;
+  --primary: #004e93;
+  --primary-dark: #032f6b;
+  --primary-ink: #ffffff;
+  --accent: #61bbb1;
+  --danger: #d63a3a;
+  --ok: #2c7a5b;
+  --font-display-stack: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-display-style: normal;
+  --font-display-weight: 700;
+  --font-body-stack: 'DM Sans', system-ui, sans-serif;
+  --radius-card: 16px;
+  --radius-tile: 10px;
+  --shadow-card: 0 8px 24px rgba(3, 20, 72, 0.08);
+  /* Older-adult floors from the BlueZone Diabetes app design brief.
+     The compact variant does NOT shrink here: nothing drops below 48px in this brand. */
+  --font-size-base: 1.125rem;
+  --control-min: 48px;
+  --control-min-sm: 48px;
+}
