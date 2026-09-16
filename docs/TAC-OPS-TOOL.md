@@ -70,9 +70,15 @@ runs on and nowhere else. Three ways to change that, in order of effort:
 3. **Supabase Sydney**, per `docs/BACKEND.md`. The right answer once real athlete data
    is in play, and a bigger job than either of the above.
 
-For today, the phone-usable copy is the published TAC Ops artifact, which carries the
-handbook, the 50 sessions and the three picks. The app in this repo is the one that
-holds live state.
+For today, the phone-usable copy is a published artifact:
+
+**https://claude.ai/artifact/J3TBtCCPvnZect3CrSRogF**
+
+It is private to Chris's account until shared, opens on a phone, and keeps its own
+state (hours, to-dos, KPI readings, reflections) in the artifact's database, so a note
+dictated in the car is there on the laptop. It carries the handbook and all 50 Game Day
+sessions read-only. The app in this repo is the fuller version: it has the planner,
+Google Calendar sync and the athlete-facing modules the artifact does not.
 
 ---
 
