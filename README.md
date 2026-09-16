@@ -41,3 +41,16 @@ Active brand: Settings → Brand (dev switcher, stored per browser), or `?brand=
 This folder is intended to be its own private repo (TAC/coaching-tool pattern), gitignored from
 the outer cowork repo. **Not yet initialised** — Claude's sandbox can't run host git reliably;
 Chris: run `git init` here (or ask and I'll walk you through wiring it into push-cowork.bat).
+
+## TAC Ops
+
+`/coach/tac` is the coach-lead console for Teneriffe Athletic Club: KPI board, to-do
+list, weekly planner with Google Calendar sync, reflections log (typed or dictated),
+timesheet against the 6 to 10 hour contract, and the 50-session Saturday Community Day
+library.
+
+- `docs/TAC-OPS-TOOL.md` — how the tool works, including the Google Calendar setup
+- `docs/TAC-COACH-HANDBOOK.md` — the onboarding document for a new coach
+- `docs/TAC-COACH-REPORTING.md` — what coaches report and what happens to it
+- `docs/TAC-GAME-DAY-LIBRARY.md` — the 50 sessions, generated from
+  `server/src/data/tac-gameday.json` via `node scripts/render-gameday-doc.mjs`

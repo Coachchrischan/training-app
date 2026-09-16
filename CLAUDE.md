@@ -14,6 +14,9 @@ White-labelled coach + athlete training platform. Base replicates TrainHeroic's 
 - Ports are fixed: web **8128**, API **8129** (Launchpad tile "Training App").
 - SQLite via `node:sqlite` (Node 22.5+). Do not add native DB deps.
 - Demo/seed data is clearly fake (`demo-*` emails). Real athlete onboarding waits for the hosted backend decision (Supabase Sydney, see `docs/BACKEND.md`).
+- **TAC Ops** (`/coach/tac`) is Chris's coach-lead console for Teneriffe Athletic Club: KPIs, to-dos, planner, reflections, timesheet, Game Day library. Coach-scoped only, athletes never see it. Google Calendar sync is ICS both ways, never OAuth: `docs/TAC-OPS-TOOL.md`.
+- The Saturday Community Day library is generated, not hand-edited. Change `server/src/data/tac-gameday.json`, then run `node scripts/render-gameday-doc.mjs`.
+- Group Fitness Room is **6 rowers, 6 skis, 6 bikes, 6 runners, 2 sled lanes**, groups of six, cap 20. Not eight of each. Programming is built on those numbers.
 
 ## Layout
 
@@ -26,8 +29,9 @@ Training-App/
 │   ├── src/             ← index, db (schema), auth, seed, routes/
 │   └── data/app.db      ← gitignored
 ├── web/                 ← React + Vite + TS + Tailwind v4 (port 8128)
-│   └── src/             ← app/coach/, app/athlete/, brands/, components/, lib/
-└── docs/                ← research, data model, roadmap, status reports
+│   └── src/             ← app/coach/ (incl. coach/tac/), app/athlete/, brands/, components/, lib/
+├── scripts/             ← render-gameday-doc.mjs (JSON → docs)
+└── docs/                ← research, data model, roadmap, status reports, TAC-*
 ```
 
 ## Status
