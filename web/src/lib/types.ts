@@ -81,3 +81,93 @@ export interface CheckinForm {
 }
 
 export interface Message { id: number; from_user_id: number; from_name: string; to_type: 'user' | 'team'; to_id: number; body: string; created_at: string }
+
+// ---- TAC Ops ----
+export type TacArea = 'classes' | 'programming' | 'trainheroic' | 'standards' | 'contract' | 'coaching' | 'admin' | 'content' | 'general'
+export type TacTodoStatus = 'open' | 'doing' | 'blocked' | 'done'
+export type TacPlanKind = 'class' | 'programming' | 'admin' | 'meeting' | 'content' | 'block'
+export type TacTimeCategory = 'coaching' | 'programming' | 'admin' | 'meeting' | 'content' | 'setup' | 'travel'
+
+export interface TacKpiReading { id: number; kpi_id: number; period: string; value: number; note: string; recorded_at: string }
+
+export interface TacKpi {
+  id: number; name: string; area: string; unit: string
+  target: number | null; direction: 'up' | 'down'
+  cadence: 'weekly' | 'monthly' | 'quarterly'
+  notes: string; position: number; archived: 0 | 1
+  readings: TacKpiReading[]
+}
+
+export interface TacTodo {
+  id: number; title: string; detail: string; area: string
+  priority: 'now' | 'normal' | 'later'
+  owner: string; due: string | null; status: TacTodoStatus
+  kpi_id: number | null; position: number; created_at: string; done_at: string | null
+}
+
+export interface TacPlanItem {
+  id: number; date: string; start_time: string | null; end_time: string | null
+  title: string; kind: TacPlanKind; location: string; notes: string
+  todo_id: number | null; billable: 0 | 1; rrule: string; uid: string
+  occurrence?: string; recurring?: 1
+}
+
+export interface TacFeedEvent {
+  id: number; feed_id: number; uid: string; date: string
+  start_time: string | null; end_time: string | null
+  title: string; location: string; feed_name: string; feed_colour: string
+}
+
+export interface TacFeed {
+  id: number; name: string; url: string; colour: string
+  last_synced_at: string | null; last_error: string
+}
+
+export interface TacReflection {
+  id: number; date: string; title: string; body: string
+  tags: string[] | null; source: 'typed' | 'voice'; changed_something: 0 | 1; created_at: string
+}
+
+export interface TacTimeEntry {
+  id: number; date: string; start_time: string | null; end_time: string | null
+  minutes: number; category: TacTimeCategory; notes: string; invoiced: 0 | 1
+}
+
+export interface TacContract { minHours: number; maxHours: number; start: string }
+
+export interface TacSettings {
+  coach_id: number; contract_min_hours: number; contract_max_hours: number
+  contract_start: string; ics_token: string; timezone: string; icsPath: string
+}
+
+export interface TacOverview {
+  today: string; weekStart: string
+  contract: TacContract
+  hours: { thisWeek: number; sinceStart: number }
+  openTodos: number; dueSoon: number; kpis: number; reflectionsThisWeek: number
+  todayPlan: TacPlanItem[]
+  nextGameDay: GameDayPick | null
+}
+
+export interface GameDayPick { date: string; workoutId: string; label: string; why: string; swapIf: string }
+
+export interface GameDayWorkout {
+  id: string; name: string; family: string
+  teamSize: number; teams: string; durationMin: number
+  stations: string; engine: string; flow: string[]
+  score: string; scaling: { base: string; build: string; push: string }
+  coachNotes: string[]; gear: string[]
+}
+
+export interface GameDayLibrary {
+  version: number; updated: string; club: string; class: string
+  room: {
+    name: string; cap: number; note: string
+    stations: Record<string, number>
+    floor: string[]; previousAssumption: string; teamMaths: string[]
+  }
+  engagement: { definition: string; rules: string[]; sessionShape: string }
+  lanes: { base: string; build: string; push: string }
+  workouts: GameDayWorkout[]
+  picks: GameDayPick[]
+}

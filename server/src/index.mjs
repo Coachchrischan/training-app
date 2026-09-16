@@ -8,6 +8,7 @@ import coachRoutes from './routes/coach.mjs'
 import calendarRoutes from './routes/calendar.mjs'
 import athleteRoutes from './routes/athlete.mjs'
 import analyticsRoutes from './routes/analytics.mjs'
+import tacRoutes from './routes/tac.mjs'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const PORT = 8129
@@ -21,6 +22,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api', coachRoutes)
 app.use('/api', calendarRoutes)
 app.use('/api', athleteRoutes)
+app.use('/api', tacRoutes)
 app.use('/api/analytics', analyticsRoutes)
 
 app.get('/api/health', (_req, res) => res.json({ ok: true, ts: new Date().toISOString() }))

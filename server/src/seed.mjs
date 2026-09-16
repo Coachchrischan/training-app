@@ -17,6 +17,8 @@ export function seed() {
   if (!hasExercises) seedExercises()
   const hasWorkouts = db.prepare('SELECT COUNT(*) AS n FROM workouts').get().n > 0
   if (!hasWorkouts) seedDemoWeek()
+  const hasTac = db.prepare('SELECT COUNT(*) AS n FROM tac_kpis').get().n > 0
+  if (!hasTac) seedTacOps()
 }
 
 function seedUsers() {
@@ -168,4 +170,105 @@ function shiftDate(iso, days) {
   const d = new Date(iso + 'T00:00:00')
   d.setDate(d.getDate() + days)
   return localIso(d)
+}
+
+// ---- TAC Ops seed ----
+// Real state, not demo filler: the KPI board from docs/TAC-COACH-REPORTING.md, the
+// to-dos that are actually outstanding as of 16 Sep 2026, the timesheet from the
+// contract start on Mon 14 Sep, and the week-one reflections. Everything here is
+// editable in the UI; it exists so the tabs are useful on first open rather than empty.
+function seedTacOps() {
+  const coach = db.prepare("SELECT id FROM users WHERE role = 'coach' ORDER BY id LIMIT 1").get()
+  if (!coach) return
+
+  db.prepare(`INSERT OR IGNORE INTO tac_settings (coach_id, contract_min_hours, contract_max_hours, contract_start, ics_token, timezone)
+    VALUES (?, 6, 10, '2026-09-14', ?, 'Australia/Brisbane')`)
+    .run(coach.id, rid() + rid() + rid() + rid())
+
+  const insKpi = db.prepare(`INSERT INTO tac_kpis (coach_id, name, area, unit, target, direction, cadence, notes, position)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+  const kpis = [
+    ['Strength class attendance vs cap', 'classes', '%', 70, 'up', 'weekly', 'Cap is 20. Below 70% for two weeks running means the time slot is wrong, not the programming.'],
+    ['Conditioning attendance vs cap', 'classes', '%', 70, 'up', 'weekly', 'Cap is 16 across Mon, Wed, Fri.'],
+    ['Community Day attendance', 'classes', 'people', 16, 'up', 'weekly', 'The number that says whether the community product is working.'],
+    ['Community Day repeat rate', 'classes', '%', 60, 'up', 'monthly', 'Came last Saturday and came again. Matters more than raw headcount.'],
+    ['Booked but absent', 'classes', '%', 15, 'down', 'weekly', 'Booking discipline. Caps only protect people if no-shows stay low.'],
+    ['TrainHeroic active users', 'trainheroic', 'users', 40, 'up', 'weekly', 'Trial ran to 26 Sep, then USD$20/month.'],
+    ['TrainHeroic trial conversion', 'trainheroic', '%', 50, 'up', 'monthly', 'The number Johno will ask about first.'],
+    ['Strength sessions published a week ahead', 'programming', '%', 100, 'up', 'weekly', 'Non-negotiable. Members were promised one week of visibility.'],
+    ['Classes started on time', 'standards', '%', 100, 'up', 'weekly', 'The most visible standard in the building.'],
+    ['Post-class notes submitted', 'standards', '%', 100, 'up', 'weekly', 'If this drops, the programming feedback loop is dead.'],
+    ['Programming changes sourced from the floor', 'programming', 'count', 2, 'up', 'monthly', 'Zero in a month means coaches have stopped reporting, not that the program is perfect.'],
+    ['Hours worked against contract', 'contract', 'hours', 8, 'up', 'weekly', 'Contracted 6 to 10. Sitting at the bottom of the band is as much a problem as sitting over it.'],
+  ]
+  const kpiIds = kpis.map((k, i) => insKpi.run(coach.id, k[0], k[1], k[2], k[3], k[4], k[5], k[6], i).lastInsertRowid)
+
+  const insReading = db.prepare('INSERT INTO tac_kpi_readings (kpi_id, period, value, note) VALUES (?, ?, ?, ?)')
+  insReading.run(kpiIds[11], '2026-W38', 4.5, 'Launch week. Mon floor time plus Tuesday Upper.')
+
+  const insTodo = db.prepare(`INSERT INTO tac_todos (coach_id, title, detail, area, priority, owner, due, status, kpi_id, position)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+  const todos = [
+    ['Send Alanah the Full Body Strength class description', 'She asked on 11 Sep for a description to load into GymMaster alongside the Upper and Lower ones. Still outstanding and the class is already bookable.', 'admin', 'now', 'Chris', '2026-09-17', 'open', null],
+    ['Program the next three Community Days', 'Sat 19 Sep, 26 Sep, 3 Oct. Picks are in the Game Day library: GD-26 carousel, GD-35 sled heats, GD-50 championship.', 'programming', 'now', 'Chris', '2026-09-18', 'doing', 2],
+    ['Call Dana about the Friday Conditioning session', 'She has questions on the ladder format and the holds. She offered Wednesday in person or a Thursday call.', 'coaching', 'now', 'Chris', '2026-09-17', 'open', null],
+    ['Send Dana next week’s Conditioning programming by email', 'Johno asked for it by email again this week, then it moves to TrainHeroic once the conditioning side is loaded.', 'programming', 'now', 'Chris', '2026-09-18', 'open', null],
+    ['Rebuild the pull-up progression', 'Weighted pull-ups were not achievable for enough of the room. Needs a real entry point and a ladder that everyone can start on.', 'programming', 'now', 'Chris', '2026-09-19', 'doing', 10],
+    ['Confirm Conditioning, HYROX and Community Day class times', 'Needed to finish the coach handbook. Alanah or GymMaster will have them.', 'admin', 'now', 'Chris', '2026-09-18', 'open', null],
+    ['Load the strength block into TrainHeroic a week ahead', 'Members were told sessions are visible one week in advance. This is a weekly recurring commitment, not a one-off.', 'trainheroic', 'normal', 'Chris', '2026-09-19', 'open', 7],
+    ['Run each admin staff member through the TrainHeroic app', 'Katie done. Remaining front desk staff plus Dana.', 'trainheroic', 'normal', 'Chris', '2026-09-22', 'doing', 5],
+    ['Record the block explainer video', 'Short video explaining the focus of the current block. Promised to members in the launch email.', 'content', 'normal', 'Chris', '2026-09-24', 'open', null],
+    ['Agree the coach handbook with Johno', 'Sign off the class list, caps, standards and the escalation path, then run the new-coach morning off it.', 'standards', 'normal', 'Chris', '2026-09-26', 'open', null],
+    ['Set the first monthly coach meeting', 'Johno: one hour, monthly, clear agenda, coaches paid the standard rate. Publish the agenda 48 hours out.', 'standards', 'normal', 'Chris', '2026-09-30', 'open', null],
+    ['Start the post-class note habit with Dana and Harry', 'Four fields, 60 seconds, before they leave the building. It only works if it is easy.', 'standards', 'normal', 'Chris', '2026-09-29', 'open', 9],
+    ['Clarify whether the $50 rate is per class or per hour', 'Affects how the timesheet maps to invoicing.', 'contract', 'normal', 'Chris', null, 'open', null],
+    ['Plan the first community event off Community Day', 'The Saturday class is the engine for it. Once attendance holds, pick a date.', 'classes', 'later', 'Chris', null, 'open', 3],
+    ['Six month strength plan: write blocks 3 and 4', 'Blocks 1 and 2 are done. Compound lifts hold through the phase, accessories rotate.', 'programming', 'later', 'Chris', '2026-10-15', 'open', null],
+  ]
+  todos.forEach((t, i) => insTodo.run(coach.id, t[0], t[1], t[2], t[3], t[4], t[5], t[6],
+    t[7] == null ? null : kpiIds[t[7]], i))
+
+  // Timesheet from the contract start. 4h30m logged so far: Monday floor time for the
+  // Conditioning launch, plus the full Tuesday Upper Body block.
+  const insTime = db.prepare(`INSERT INTO tac_timesheet (coach_id, date, start_time, end_time, minutes, category, notes)
+    VALUES (?, ?, ?, ?, ?, ?, ?)`)
+  insTime.run(coach.id, '2026-09-14', '05:15', '06:00', 45, 'coaching', 'Monday Conditioning launch, on the floor with Dana for the first board')
+  insTime.run(coach.id, '2026-09-15', '04:30', '08:15', 225, 'coaching', 'Tuesday Upper Body Strength: 5am, 6am and the new 7am, plus set-up and pack-down')
+
+  // The standing week, published to Google through the ICS feed.
+  const insPlan = db.prepare(`INSERT INTO tac_plan_items (coach_id, date, start_time, end_time, title, kind, location, notes, billable, rrule, uid)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+  const plans = [
+    ['2026-09-15', '04:30', '08:15', 'Upper Body Strength (5, 6, 7am)', 'class', 'TAC strength floor', 'Set-up from 4:30, pack-down to 8:15.', 1, 'FREQ=WEEKLY;BYDAY=TU'],
+    ['2026-09-17', '04:30', '08:15', 'Lower Body Strength (5, 6, 7am)', 'class', 'TAC strength floor', 'Set-up from 4:30, pack-down to 8:15.', 1, 'FREQ=WEEKLY;BYDAY=TH'],
+    ['2026-09-19', '05:45', '08:00', 'Saturday: Full Body Strength + Community Day', 'class', 'Functional Training Zone / Group Fitness Room', 'Full Body 6am. Community Day time still to confirm.', 1, 'FREQ=WEEKLY;BYDAY=SA'],
+    ['2026-09-16', '19:00', '20:30', 'Programming block: strength', 'programming', 'Home', 'Next week loaded to TrainHeroic a full week ahead.', 1, 'FREQ=WEEKLY;BYDAY=WE'],
+    ['2026-09-18', '19:00', '20:00', 'Programming block: conditioning + Community Day', 'programming', 'Home', 'Conditioning board for Mon/Wed/Fri and the Saturday session.', 1, 'FREQ=WEEKLY;BYDAY=FR'],
+    ['2026-09-17', '12:00', '12:30', 'Call Dana: Friday Conditioning questions', 'meeting', 'Phone', '', 1, ''],
+    ['2026-09-30', '17:00', '18:00', 'Monthly coach meeting', 'meeting', 'TAC', 'One hour, agenda published 48 hours out. Coaches paid the standard rate.', 1, 'FREQ=MONTHLY'],
+  ]
+  for (const p of plans) insPlan.run(coach.id, p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], rid() + rid())
+
+  const insRef = db.prepare(`INSERT INTO tac_reflections (coach_id, date, title, body, tags, source, changed_something)
+    VALUES (?, ?, ?, ?, ?, ?, ?)`)
+  insRef.run(coach.id, '2026-09-16', 'Pull-ups were the wrong entry point',
+    'The big one this week. The strength programming had weighted pull-ups as the prescription and nowhere near enough of the room can do a strict bodyweight pull-up, let alone a weighted one. Changing the progression so there is a real entry point and a ladder people can actually start on. This is the kind of thing that has to come back through the coaches rather than each of them quietly inventing their own patch on the floor.',
+    JSON.stringify(['programming', 'strength', 'scaling']), 'typed', 1)
+  insRef.run(coach.id, '2026-09-16', 'They prefer this style of training',
+    'Consistent read across the week: people are enjoying this format more than what was running before. Dana said the Monday room freaked out a bit when they first saw the screens, then by the end it was lots of "oh that was really great" and "similar to what we normally do". Keep adding people and keep adding variety. The variety is doing the work, not the intensity.',
+    JSON.stringify(['members', 'conditioning', 'feedback']), 'typed', 0)
+  insRef.run(coach.id, '2026-09-16', 'Room is six of each, not eight',
+    'Johno reset the Group Fitness Room. Six rowers, six skis, six bikes, six runners, two sled lanes. Eight rowers will not fit and eight bikes and skis are not gettable. Groups of six is now the standing unit and the room can push to 18. Every future session gets built on those numbers, including the Saturday library.',
+    JSON.stringify(['room', 'programming', 'operations']), 'typed', 1)
+
+  const insNote = db.prepare(`INSERT INTO tac_class_notes (coach_id, date, class_name, coach_name, booked, attended, did_not_work, people, lane_drift)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+  insNote.run(coach.id, '2026-09-14', 'Conditioning (Monday, mixed modal)', 'Dana', 14, 12,
+    'Nothing structural. The screens were new so there was more hand-holding than usual at the top of the class.',
+    'Whole room needed the board explained once. Second half ran itself.', 'build')
+  insNote.run(coach.id, '2026-09-15', 'Upper Body Strength (6am)', 'Chris', 20, 18,
+    'Weighted pull-ups. Not enough of the room has a strict bodyweight pull-up for the prescription to mean anything.',
+    'Several members went to band-assisted on the spot.', 'base')
+
+  console.log('[seed] TAC Ops: ' + kpis.length + ' KPIs, ' + todos.length + ' to-dos, timesheet from 2026-09-14')
 }
