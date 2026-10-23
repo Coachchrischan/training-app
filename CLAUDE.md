@@ -33,3 +33,15 @@ Training-App/
 ## Status
 
 Scaffolded 2026-08-16 during an autonomous build day. See `docs/STATUS-2026-08-16.md` for what shipped and the open decisions.
+
+
+---
+
+## Detail moved from the root CLAUDE.md (2026-10-13)
+
+This used to sit in the root routing file. It lives here now so it only loads when work is in this zone.
+
+**`Training-App/`**: the white-labelled coach + athlete training platform (TrainHeroic's structure, own skin), serving **Coach Chris Chan (default brand), Antenna Reef Athletic Club and BlueZone** from one codebase. Created 2026-08-16 with Chris's approval as a cross-venture product zone.
+- **Rules file (authoritative):** `Training-App/CLAUDE.md`. Read it before any task there.
+- **Stack:** `server/` Express + `node:sqlite` API (port 8129), `web/` React + Vite + TS + Tailwind v4 (port 8128), Launchpad tile "Training App" (`launch.mjs` starts both). It is its **own git repo** (`Coachchrischan/training-app`, private), gitignored from the outer repo and covered by the Launchpad Git sync buttons. `server/data/` (the SQLite demo database) is gitignored and rebuilt by the seeder, so it never syncs between machines.
+- **Hard rules inside:** all persistence through the API (no feature localStorage); multi-parameter prescriptions never regress to TrainHeroic's 2-column limit; brand packs own all colours/terminology; never calls TrainHeroic's API (exercise seed is read from `trainheroic-mcp/.exercise-cache.json` at seed time only).
